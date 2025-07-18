@@ -1,6 +1,5 @@
 // services/chat_service.dart
 import 'package:rento/main.dart';
-
 import '../crud.dart';
 import '../linkapi.dart';
 import 'message_model.dart';
@@ -19,7 +18,7 @@ static Future<List<Message>> getMessages(int chatId, int userId) async {
     if (response['status'] == "success") {
       return (response['messages'] as List)
           .map((msg) => Message(
-                id: msg['id'],
+                id: int.parse(msg['id']),
                 content: msg['message'],
                 timestamp: DateTime.parse(msg['created_at']),
                 isRead: msg['is_read'] == 1 || msg['is_read'] == true,

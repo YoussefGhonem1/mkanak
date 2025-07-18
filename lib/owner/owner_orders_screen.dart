@@ -54,12 +54,9 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
     final property = reservation['property'];
 
     final images = property['images'] ?? [];
-
     final firstImage =
         images.isNotEmpty ? "$linkImageRoot/${images[0]}" : "images/fig.webp";
 
-    // Extract reservation details
-    //final userId = transaction['user_id'].toString();
     final String numberOfPeople = transaction['number_of_people'] ?? "0";
     final String reservationType = transaction['reservation_type'] ?? 'N/A';
     final String startDate = transaction['start_date'] ?? '';
@@ -67,308 +64,304 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
     final double dailyPrice =
         double.tryParse(property['rent_amount'] ?? '0') ?? 0;
 
-    // Calculate number of days and total price
     final DateTime start = DateTime.parse(startDate);
     final DateTime end = DateTime.parse(endDate);
     final int numberOfDays = end.difference(start).inDays + 1;
     final double totalPrice = numberOfDays * dailyPrice;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.teal[100],
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 6,
-            offset: const Offset(1, 1),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double imageWidth = constraints.maxWidth * 0.36;
+        double imageHeight = imageWidth * 1.11;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.teal[100],
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 6,
+                offset: const Offset(1, 2),
+              ),
+            ],
+            border: Border.all(color: Colors.teal.shade400, width: 1),
           ),
-        ],
-        border: Border.all(color: Colors.teal.shade400, width: 1),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (context) => RealEstateDetailsPage(
-                    fav: false,
-                    favoriteProperties: [],
-                    images: List<String>.from(images),
-                    videos: [],
-                    id: property['id'].toString(),
-                    owner_id: sharedPref.getString("id") ?? "",
-                    title: property['address'] ?? "",
-                    price: property['rent_amount'] ?? "",
-                    location: property['address'] ?? "",
-                    terms_and_conditions: '${property['terms_and_conditions']}',
-                    description: "",
-                    phone: "",
-                    state: "",
-                    latitude: "",
-                    longitude: "",
-                    floor_number: "",
-                    room_count: "",
-                    property_direction: property['property_direction'] ?? "",
-                    rating: "",
-                  ),
-            ),
-          );
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image
-            Padding(
-              padding: const EdgeInsets.only(right: 5, left: 5, top: 5),
-              child: SizedBox(
-                height: 110,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(15),
-                  ),
-                  child: Image.network(
-                    firstImage,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder:
-                        (context, error, stackTrace) => Image.asset(
-                          "images/fig.webp",
-                          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              children: [
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.network(
+                          firstImage,
+                          width: imageWidth,
+                          height: imageHeight,
                           fit: BoxFit.cover,
+                          errorBuilder:
+                              (context, error, stackTrace) => Image.asset(
+                                "images/fig.webp",
+                                width: imageWidth,
+                                height: imageHeight,
+                                fit: BoxFit.cover,
+                              ),
                         ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              property['address'] ?? 'لا يوجد عنوان',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.teal[900],
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 5),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.attach_money,
+                                  size: 18,
+                                  color: Colors.teal[900],
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  "${property['rent_amount']} ج.م / يوم",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.teal[900],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+                            _buildInfoRow("نوع الحجز:", reservationType),
+                            _buildInfoRow("عدد الأشخاص:", numberOfPeople),
+                            _buildInfoRow("عدد الأيام:", "$numberOfDays"),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ),
 
-            // Details
-            Directionality(
-              textDirection: TextDirection.rtl,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 10, left: 3, top: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                const SizedBox(height: 5),
+
+                // ✅ تاريخ البدء والانتهاء
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Row(
+                    //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: _buildInfoRow(" البدء:", startDate)),
+                      const SizedBox(width: 0),
+                      Expanded(child: _buildInfoRow(" الانتهاء:", endDate)),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: _buildInfoRow(
+                    "التكلفة الإجمالية:",
+                    "${totalPrice.toStringAsFixed(2)} ج.م",
+                  ),
+                ),
+
+                const SizedBox(height: 5),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Address
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on,
-                          color: Colors.teal[900],
-                          size: 24,
-                        ),
-                        Expanded(
-                          child: Text(
-                            property['address'] ?? 'No Address',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.teal[900],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-
-                    // Price
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.attach_money,
-                          color: Colors.teal[900],
-                          size: 20,
-                        ),
-                        Text(
-                          " ${property['rent_amount']}  ج.م / تكلفه اليوم",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal[900],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 3),
-
-                    // Reservation Details
-                    _buildInfoRow("عدد الأشخاص:", "$numberOfPeople"),
-                    _buildInfoRow("نوع الحجز:", reservationType),
-                    _buildInfoRow("تاريخ البدء:", startDate),
-                    _buildInfoRow("تاريخ الانتهاء:", endDate),
-                    _buildInfoRow("عدد الأيام:", "$numberOfDays"),
-                    _buildInfoRow(
-                      "التكلفة الإجمالية:",
-                      "${totalPrice.toStringAsFixed(2)} ج.م",
-                    ),
-
-                    const SizedBox(height: 3),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Payment Status Chip
-                        Flexible(
-                          child: Chip(
-                            label: Text(
-                              _getPaymentStatusText(
-                                transaction['payment_status'],
-                              ),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                              ),
-                            ),
-                            backgroundColor: _getPaymentStatusColor(
-                              transaction['payment_status'],
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                          ),
-                        ),
-                        transaction['status'] == 'pending'
-                            ?
-                            // Elevated Button
-                            Flexible(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.teal[50],
-                                  backgroundColor: Colors.teal[900],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
+                    transaction['status'] == "confirmed"
+                        ? Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    "الحاله: ",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.teal[900],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal:
-                                        15, // Adjusted padding to prevent overflow
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    _getStatusText(transaction['status']),
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: _getStatusColor(
+                                        transaction['status'],
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                onPressed: () async {
-                                  // عرض مربع الحوار
-                                  final confirmed = await showDialog<bool>(
-                                    context: context,
-                                    barrierDismissible:
-                                        false, // لمنع الإغلاق بالضغط خارج الصندوق
-                                    builder:
-                                        (ctx) => AlertDialog(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              15,
-                                            ),
-                                          ),
-                                          backgroundColor: Colors.teal[50],
-                                          title: Text(
-                                            'تأكيد',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.teal[900],
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          content: Text(
-                                            ' عندما يقوم المستاجر بدفع 20% من قيمة الايجار الاجمالى سوف تصلك رساله بالتاكيد و ستضاف القيمه لحسابك و سيتم تحويلهم لك عند اسلام المستاجر مع باقى قيمه الايجار',
-                                            style: TextStyle(
-                                              color: Colors.teal[900],
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          actionsAlignment:
-                                              MainAxisAlignment.center,
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(ctx).pop(false);
-                                              },
-                                              child: Text(
-                                                'الغاء الحجز',
-                                                style: TextStyle(
-                                                  color: Colors.teal[900],
-                                                ),
-                                              ),
-                                            ),
-                                            ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    Colors.teal[800],
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                Navigator.of(ctx).pop(true);
-                                              },
-                                              child: Text(
-                                                'تاكيد الحجز',
-                                                style: TextStyle(
-                                                  color: Colors.teal[50],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                  );
-
-                                  if (confirmed == true) {
-                                    await _crud.postRequest(
-                                      linkUpdateOrderStatus,
-                                      {'id': transaction['id'].toString()},
-                                    );
-                                    showCustomMessage(
-                                      context,
-                                      "تم قبول العرض",
-                                      isSuccess: true,
-                                    );
-                                  } else if (confirmed == false) {
-                                    await _crud.postRequest(linkDeleteOrder, {
-                                      'id': transaction['id'].toString(),
-                                    });
-                                    showCustomMessage(
-                                      context,
-                                      "تم رفض العرض",
-                                      isSuccess: false,
-                                    );
-                                  }
-                                  getReservations();
-                                },
-                                child: const Text(
-                                  "موافقه على العرض",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                  ), // Adjusted font size to fit
-                                ),
+                                ],
                               ),
-                            )
-                            : Flexible(
-                              child: Chip(
-                                label: Text(
-                                  _getStatusText(transaction['status']),
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white,
+                              SizedBox(
+                                width:
+                                    MediaQuery.of(context).size.width * 0.262,
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "حاله الدفع: ",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.teal[900],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                backgroundColor: _getStatusColor(
-                                  transaction['status'],
-                                ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    _getPaymentStatusText(
+                                      transaction['payment_status'],
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: _getPaymentStatusColor(
+                                        transaction['payment_status'],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                        : Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: Flexible(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal[900],
+                                foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
+                                  horizontal: 10,
+                                  vertical: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
                               ),
+                              onPressed: () async {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder:
+                                      (ctx) => AlertDialog(
+                                        backgroundColor: Colors.teal[50],
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
+                                        ),
+                                        title: Text(
+                                          "تأكيد",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                          ),
+                                        ),
+                                        content: Text(
+                                          "سوف يتم تاكيد الحجز تلقائيا عند دفع المستاجر 20% من القيمه الاجماليه",
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        actionsAlignment:
+                                            MainAxisAlignment.center,
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.of(
+                                                  ctx,
+                                                ).pop(false),
+                                            child: Text(
+                                              "رفض العرض",
+                                              style: TextStyle(
+                                                color: Colors.teal[800],
+                                              ),
+                                            ),
+                                          ),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.teal[800],
+                                            ),
+                                            onPressed:
+                                                () =>
+                                                    Navigator.of(ctx).pop(true),
+                                            child: Text(
+                                              "تاكيد العرض",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                );
+
+                                if (confirmed == true) {
+                                  await _crud.postRequest(
+                                    linkUpdateOrderStatus,
+                                    {'id': transaction['id'].toString()},
+                                  );
+                                  showCustomMessage(
+                                    context,
+                                    "تم قبول العرض",
+                                    isSuccess: true,
+                                  );
+                                } else if (confirmed == false) {
+                                  await _crud.postRequest(linkDeleteOrder, {
+                                    'id': transaction['id'].toString(),
+                                  });
+                                  showCustomMessage(
+                                    context,
+                                    "تم رفض العرض",
+                                    isSuccess: false,
+                                  );
+                                }
+                                getReservations();
+                              },
+                              child: const Text(
+                                "موافقة على العرض",
+                                style: TextStyle(fontSize: 13),
+                              ),
                             ),
-                      ],
-                    ),
+                          ),
+                        ),
                   ],
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -386,9 +379,9 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
   Color _getStatusColor(String? status) {
     switch (status) {
       case 'pending':
-        return Colors.orange;
+        return Colors.red;
       case 'confirmed':
-        return Colors.green;
+        return Colors.green[900]!;
       default:
         return Colors.grey;
     }
@@ -408,9 +401,9 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
   Color _getPaymentStatusColor(String? status) {
     switch (status) {
       case 'pending':
-        return Colors.orange;
+        return Colors.red;
       case 'paid':
-        return Colors.green;
+        return Colors.green[900]!;
       default:
         return Colors.grey;
     }
@@ -442,28 +435,31 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
       backgroundColor: Colors.teal[50],
       key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Colors.teal[800],
-        title: Row(
-          // ✅ استخدام Row لعرض العنوان والرصيد معاً
-          children: [
-            Text(
-              'الحجوزات',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Colors.teal[50],
+        backgroundColor: Colors.teal[900],
+        title: Padding(
+          padding: EdgeInsets.only(right: 12),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+             
+              Text(
+                'الرصيد: ${balance}', // جلب الرصيد من sharedPref
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16, // حجم خط أصغر للرصيد
+                  color: Colors.amber[300], // لون مميز للرصيد
+                ),
+              ), 
+              Text(
+                'الحجوزات',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.teal[50],
+                ),
               ),
-            ),
-            const SizedBox(width: 120),
-            Text(
-              'الرصيد: ${balance}', // جلب الرصيد من sharedPref
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16, // حجم خط أصغر للرصيد
-                color: Colors.amber[300], // لون مميز للرصيد
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -482,15 +478,17 @@ class _OwnerOrdersScreenState extends State<OwnerOrdersScreen> {
               )
               : RefreshIndicator(
                 onRefresh: getReservations,
-                child: Padding(
-                  padding: EdgeInsets.all(8),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 20),
+                child: SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 20),
 
-                    itemCount: allReservations.length,
-                    itemBuilder:
-                        (context, index) =>
-                            _buildReservationCard(allReservations[index]),
+                      itemCount: allReservations.length,
+                      itemBuilder:
+                          (context, index) =>
+                              _buildReservationCard(allReservations[index]),
+                    ),
                   ),
                 ),
               ),

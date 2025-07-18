@@ -43,17 +43,23 @@ class CustomDrawer extends StatelessWidget {
                   height: 70,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.2),
-                    border: Border.all(color: Colors.white, width: 0.3),
+                    // color: Colors.white.withOpacity(0.2),
+                    // border: Border.all(color: Colors.white, width: 0),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(35),
-                    child: Image.asset("images/Capture.PNG", fit: BoxFit.cover),
+                    child: Image.asset("images/drawer.png", fit: BoxFit.cover),
                   ),
                 ),
                 const SizedBox(width: 15),
                 Text(
-                  sharedPref.getString("username").toString(),
+                  (sharedPref.getString("username").toString().isNotEmpty ==
+                              true &&
+                          sharedPref.getString("username").toString().length >
+                              15)
+                      ? '${sharedPref.getString("username").toString().substring(0, 15)}'
+                      : sharedPref.getString("username").toString(),
+
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -93,35 +99,39 @@ class CustomDrawer extends StatelessWidget {
                   const Divider(color: Colors.white54, height: 10),
 
                   // صفحة الحساب
-                  _buildDrawerItem(
-                    context,
-                    title: "حساب",
-                    icon: Icons.account_circle,
-                    onTap: () {
-                      if (userType == "owner") {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const OwnerRealstate(),
-                          ),
-                        );
-                      } else if (userType == "admin") {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ControlAdmin(),
-                          ),
-                        );
-                      }
-                      // لو renter ممكن ميكنش ليها صفحة حساب منفصلة
-                    },
-                  ),
-                  const Divider(color: Colors.white54, height: 10),
+                  userType != "renter"
+                      ? _buildDrawerItem(
+                        context,
+                        title: "حسابى",
+                        icon: Icons.account_circle,
+                        onTap: () {
+                          if (userType == "owner") {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const OwnerRealstate(),
+                              ),
+                            );
+                          } else if (userType == "admin") {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ControlAdmin(),
+                              ),
+                            );
+                          }
+                          // لو renter ممكن ميكنش ليها صفحة حساب منفصلة
+                        },
+                      )
+                      : SizedBox.shrink(), // لو مش owner أو admin مش هتظهر
+                  userType != "renter"
+                      ? const Divider(color: Colors.white54, height: 10)
+                      : SizedBox.shrink(),
 
                   // صفحة الطلبات
                   _buildDrawerItem(
                     context,
-                    title: "الطلبات",
+                    title: userType == "admin"?"الطلبات": userType == "owner"? "الطلبات على عقاراتى":"طلباتى",
                     icon: Icons.list_alt,
                     onTap: () {
                       if (userType == "admin") {
@@ -261,18 +271,15 @@ class CustomDrawer extends StatelessWidget {
                       }
                     },
                   ),
-                  if (userType != "admin") ...[const SizedBox(height: 60)],
-                  const SizedBox(
-                    height: 120,
-                  ), // أو SpaceAround لو حبيت المسافات تتوزع
-
+                  const Divider(color: Colors.white54, height: 10),
                   _buildDrawerItem(
                     context,
                     title: "تسجيل الخروج",
                     icon: Icons.logout,
                     onTap: () async {
-                      // ✅ جعلها async عشان FCM Token
-
+                         await crud.postRequest(linkDeleteUserFcmToken, {
+                          "user_id": sharedPref.getString("id").toString(),
+                        });
                       sharedPref.clear();
                       Navigator.pushReplacement(
                         context,

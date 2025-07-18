@@ -194,10 +194,9 @@ class _OrderAdminScreenState extends State<OrderAdminScreen> {
                           ),
                         ),
                       ],
-                      
                     ),
                     const SizedBox(height: 12),
-                
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -213,136 +212,146 @@ class _OrderAdminScreenState extends State<OrderAdminScreen> {
                           ),
                         ),
                         transaction['transfer_status'] == 'transferred'
-                        ? Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(Icons.check_circle, color: Colors.green),
-                              SizedBox(width: 6),
-                              Text(
-                                "تم التحويل",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
                               ),
-                            ],
-                          ),
-                        )
-                        : ElevatedButton.icon(
-                          onPressed: () async {
-                            final confirmed = await showDialog<bool>(
-                              context: context,
-                              barrierDismissible: false,
-                              builder:
-                                  (ctx) => AlertDialog(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(Icons.check_circle, color: Colors.green),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    "تم التحويل",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    backgroundColor: Colors.teal[50],
-                                    title: Text(
-                                      'تأكيد',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.teal[900],
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    content: Text(
-                                      'هل أنت متأكد من تأكيد تحويل المبلغ؟',
-                                      style: TextStyle(color: Colors.teal[900]),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    actionsAlignment: MainAxisAlignment.center,
-                                    actions: [
-                                      TextButton(
-                                        onPressed:
-                                            () => Navigator.of(ctx).pop(false),
-                                        child: Text(
-                                          'إلغاء',
+                                  ),
+                                ],
+                              ),
+                            )
+                            : ElevatedButton.icon(
+                              onPressed: () async {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder:
+                                      (ctx) => AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.teal[50],
+                                        title: Text(
+                                          'تأكيد',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        content: Text(
+                                          'هل أنت متأكد من تأكيد تحويل المبلغ؟',
                                           style: TextStyle(
                                             color: Colors.teal[900],
                                           ),
+                                          textAlign: TextAlign.center,
                                         ),
-                                      ),
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.teal[800],
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
+                                        actionsAlignment:
+                                            MainAxisAlignment.center,
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.of(
+                                                  ctx,
+                                                ).pop(false),
+                                            child: Text(
+                                              'إلغاء',
+                                              style: TextStyle(
+                                                color: Colors.teal[900],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        onPressed:
-                                            () => Navigator.of(ctx).pop(true),
-                                        child: Text(
-                                          'تأكيد',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.teal[800],
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            onPressed:
+                                                () =>
+                                                    Navigator.of(ctx).pop(true),
+                                            child: Text(
+                                              'تأكيد',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                            );
+                                );
 
-                            if (confirmed == true) {
-                              var response = await _crud.postRequest(
-                                linkConfirmTransfer,
-                                {
-                                  'reservation_id':
-                                      transaction['id'].toString(),
-                                },
-                              );
-                              if (response['status'] == "success") {
-                                showCustomMessage(
-                                  context,
-                                  "تم تأكيد التحويل بنجاح",
-                                  isSuccess: true,
-                                );
-                                getOrders(); // يتم التحديث وهيتغير الزر تلقائي لأن البيانات رجعت جديدة
-                              } else {
-                                showCustomMessage(
-                                  context,
-                                  "حدث خطأ أثناء تأكيد التحويل",
-                                  isSuccess: false,
-                                );
-                              }
-                            }
-                          },
-                          icon: const Icon(
-                            Icons.attach_money,
-                            color: Colors.white,
-                          ),
-                          label: Text(
-                            "تأكيد تحويل ${amountPaid} ج.م",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
+                                if (confirmed == true) {
+                                  var response = await _crud
+                                      .postRequest(linkConfirmTransfer, {
+                                        'reservation_id':
+                                            transaction['id'].toString(),
+                                      });
+                                  if (response['status'] == "success") {
+                                    showCustomMessage(
+                                      context,
+                                      "تم تأكيد التحويل بنجاح",
+                                      isSuccess: true,
+                                    );
+                                    getOrders(); // يتم التحديث وهيتغير الزر تلقائي لأن البيانات رجعت جديدة
+                                  } else {
+                                    showCustomMessage(
+                                      context,
+                                      "حدث خطأ أثناء تأكيد التحويل",
+                                      isSuccess: false,
+                                    );
+                                  }
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.attach_money,
+                                color: Colors.white,
+                              ),
+                              label: Text(
+                                "تأكيد تحويل ${amountPaid} ج.م",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green[600],
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                             ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green[600],
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
                         IconButton(
                           icon: Icon(Icons.delete, color: Colors.red[700]),
-                          onPressed: () => _deleteOrder(transaction['id']),
+                          onPressed: () {
+                            print("Order ID: ${order['transaction']['id']}");
+                            _deleteOrder(transaction['id'].toString());
+                          },
                         ),
                       ],
                     ),
@@ -443,7 +452,7 @@ class _OrderAdminScreenState extends State<OrderAdminScreen> {
     );
   }
 
-  Future<void> _deleteOrder(int orderId) async {
+  Future<void> _deleteOrder(String orderId) async {
     showDialog(
       context: context,
       builder:
@@ -481,7 +490,7 @@ class _OrderAdminScreenState extends State<OrderAdminScreen> {
       backgroundColor: Colors.teal[50],
       key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Colors.teal[800],
+        backgroundColor: Colors.teal[900],
         title: Row(
           children: [
             Text(
@@ -529,12 +538,14 @@ class _OrderAdminScreenState extends State<OrderAdminScreen> {
               )
               : RefreshIndicator(
                 onRefresh: load,
-                child: ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  itemCount: filteredOrders.length,
-                  itemBuilder:
-                      (context, index) =>
-                          _buildOrderCard(filteredOrders[index], index),
+                child: SafeArea(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    itemCount: filteredOrders.length,
+                    itemBuilder:
+                        (context, index) =>
+                            _buildOrderCard(filteredOrders[index], index),
+                  ),
                 ),
               ),
     );

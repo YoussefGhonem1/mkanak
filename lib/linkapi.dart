@@ -11,6 +11,7 @@ const String linkVideoRoot = "$linkServerName/upload/videos";
 const String linkRegister = "$linkServerName/auth/register.php";
 const String linkLogin = "$linkServerName/auth/login.php";
 const String linkUpdateUserFcmToken = "$linkServerName/auth/update_fcm_token.php";
+const String linkDeleteUserFcmToken = "$linkServerName/auth/signout.php";
 //realstate
 const String linkView = "$linkServerName/realstates/view.php";
 const String linkAdd = "$linkServerName/realstates/add.php";
@@ -52,7 +53,6 @@ const String linkUpdateOrderStatus = "$linkServerName/orders/update_status.php";
 const String linkRejectOrder = "$linkServerName/orders/reject_order.php";
 const String linkConfirmTransfer = "$linkServerName/orders/confirm_transfer.php";
 //payment
-//const String linkCheckPaymentStatus = "$linkServerName/payment/paymob_webhook.php";
 const String linkGetPaymobOrderId = "$linkServerName/payment/get_paymob_order_id.php";
 const String linkUpdatePaymobOrderId = "$linkServerName/payment/update_paymob_order_id.php";
 const String linkCheckPaymentStatus = "$linkServerName/payment/check_payment_status.php";

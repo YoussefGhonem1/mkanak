@@ -84,9 +84,9 @@ class _RenterOrdersScreenState extends State<RenterOrdersScreen> {
                   "بطاقة ائتمان(فيزا/ماستركارد)",
                   style: TextStyle(color: Colors.teal[900], fontSize: 16),
                 ),
-                onTap: () async{
+                onTap: () async {
                   Navigator.pop(dialogContext); // إغلاق الـ Dialog
-                 await Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder:
@@ -121,7 +121,7 @@ class _RenterOrdersScreenState extends State<RenterOrdersScreen> {
                   setState(() {
                     isLoading = true; // إعادة تحميل البيانات
                   }); // تحديث قائمة الحجوزات
-                 await getReservations(); // تحديث قائمة الحجوزات
+                  await getReservations(); // تحديث قائمة الحجوزات
                 },
               ),
               const Divider(color: Colors.teal, height: 10), // فاصل
@@ -131,9 +131,9 @@ class _RenterOrdersScreenState extends State<RenterOrdersScreen> {
                   "المحفظة الإلكترونية",
                   style: TextStyle(color: Colors.teal[900], fontSize: 16),
                 ),
-                onTap: () async{
+                onTap: () async {
                   Navigator.pop(dialogContext); // إغلاق الـ Dialog
-               await Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder:
@@ -166,7 +166,7 @@ class _RenterOrdersScreenState extends State<RenterOrdersScreen> {
                   setState(() {
                     isLoading = true; // إعادة تحميل البيانات
                   }); // تحديث قائمة الح
-                 await getReservations(); // تحديث قائمة الحجوزات
+                  await getReservations(); // تحديث قائمة الحجوزات
                 },
               ),
             ],
@@ -566,13 +566,19 @@ class _RenterOrdersScreenState extends State<RenterOrdersScreen> {
       backgroundColor: Colors.teal[50],
       key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Colors.teal[800],
-        title: Text(
-          'حجوزاتي',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.teal[50],
+        backgroundColor: Colors.teal[900],
+        title: Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: Text(
+              'حجوزاتي',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.teal[50],
+              ),
+            ),
           ),
         ),
         leading: IconButton(

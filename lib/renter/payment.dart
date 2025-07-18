@@ -1,6 +1,7 @@
 // 📦 import packages
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:rento/main.dart';
 import '../crud.dart';
 import 'package:rento/linkapi.dart';
 import 'dart:convert';
@@ -185,10 +186,10 @@ class _PaymentPageState extends State<PaymentPage> {
         "currency": "EGP",
         "integration_id": int.parse(_paymobIntegrationIdUsedForOrder!), // ✅ استخدام الـ integration ID المرتبط بالـ order
         "billing_data": {
-          "first_name": "Test", // Replace with actual user data if available
-          "last_name": "User",
-          "email": "test@example.com", // Valid email is often required
-          "phone_number": "01000000000", // Valid phone number
+          "first_name": sharedPref.getString("username") ?? "Unknown",
+          "last_name":  "User",
+          "email": sharedPref.getString("email") ?? "test@example.com",
+          "phone_number": sharedPref.getString("phone_number") ?? "01000000000",
           "apartment": "NA", "floor": "NA", "street": "NA", "building": "NA",
           "shipping_method": "NA", "postal_code": "NA", "city": "Cairo",
           "state": "Cairo", "country": "EG",
@@ -260,7 +261,7 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.teal[800],
+        backgroundColor: Colors.teal[900],
         title: const Text("الدفع الإلكتروني", style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),

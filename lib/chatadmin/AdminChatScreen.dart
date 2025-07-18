@@ -52,11 +52,11 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
     final response = await _crud.postRequest(linkGetMessage, {
       'chat_id': widget.chat.id.toString(),
     });
-
+     if (!mounted) return;
     setState(() {
       _messages = (response['messages'] as List)
           .map((msg) => Message(
-                id: msg['id'],
+                id: int.parse(msg['id']),
                 content: msg['message'],
                 timestamp: DateTime.parse(msg['created_at']),
                 isRead: msg['is_read'] == 1 || msg['is_read'] == true,
@@ -254,17 +254,19 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
             ),
           ],
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: _messages.length,
-                itemBuilder: (ctx, index) => _buildMessage(_messages[index]),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _messages.length,
+                  itemBuilder: (ctx, index) => _buildMessage(_messages[index]),
+                ),
               ),
-            ),
-            _buildMessageInput(),
-          ],
+              _buildMessageInput(),
+            ],
+          ),
         ),
       ),
     );

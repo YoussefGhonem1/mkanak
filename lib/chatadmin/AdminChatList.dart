@@ -27,13 +27,12 @@ class _AdminChatListState extends State<AdminChatList> {
   Future<void> _loadChats() async {
     try {
       final response = await _crud.postRequest(linkGetAdminChats, {});
-
+      if (!mounted) return;
       setState(() {
         _chats =
             (response['chats'] as List)
                 .map((chat) => Chat.fromJson(chat))
                 .toList()
-              // ترتيب المحادثات بحيث تكون التي بها رسائل غير مقروءة في الأعلى
               ..sort((a, b) => b.unreadCount.compareTo(a.unreadCount));
         _isLoading = false;
       });
@@ -47,23 +46,26 @@ class _AdminChatListState extends State<AdminChatList> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.teal[50],
-          ), // أو أيقونة تانية تعجبك
+          icon: Icon(Icons.arrow_back, color: Colors.teal[50]),
           onPressed: () {
-            Navigator.pop(context); // الرجوع للصفحة السابقة
+            Navigator.pop(context);
           },
         ),
-        title: Text(
-          "المحادثات الواردة",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.teal[50],
+        title: Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: Text(
+              "المحادثات الواردة",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.teal[50],
+              ),
+            ),
           ),
         ),
-        backgroundColor: Colors.teal[800],
+        backgroundColor: Colors.teal[900],
       ),
       body:
           _isLoading
@@ -118,35 +120,35 @@ class _AdminChatListState extends State<AdminChatList> {
                   ),
                 ),
               ),
-              
+
               Padding(
                 padding: EdgeInsets.only(left: 70),
-                child: Flexible(
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                       var response = await _crud.postRequest(linkDeleteChat, {
-                        "id": chat.id.toString(),
-                      });
-                      if (response['status'] == "success") {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => AdminChatList()),
-                        );
-                      } 
-                    },
-                    icon: const Icon(Icons.delete, size: 14, color: Colors.white),
-                    label: const Text(
-                      'حذف',
-                      style: TextStyle(color: Colors.white, fontSize: 13),
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    var response = await _crud.postRequest(linkDeleteChat, {
+                      "id": chat.id.toString(),
+                    });
+                    if (response['status'] == "success") {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AdminChatList(),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.delete, size: 14, color: Colors.white),
+                  label: const Text(
+                    'حذف',
+                    style: TextStyle(color: Colors.white, fontSize: 13),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
                     ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 8,
-                      ),
-                      backgroundColor: Colors.red.shade400,
-                      textStyle: const TextStyle(fontSize: 12),
-                    ),
+                    backgroundColor: Colors.red.shade400,
+                    textStyle: const TextStyle(fontSize: 12),
                   ),
                 ),
               ),

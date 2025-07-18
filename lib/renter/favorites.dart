@@ -39,6 +39,18 @@ class _FavoriteState extends State<Favorite> {
     }
   }
 
+  double _calculateAspectRatio(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (screenWidth < 400) {
+      return 0.65;
+    } else if (screenWidth < 800) {
+      return 0.75;
+    } else {
+      return 0.8;
+    }
+  }
+
   Future<void> loadallFavorites() async {
     var response = await _crud.postRequest(linkGetAllFav, {
       "user_id": sharedPref.getString("id").toString(),
@@ -105,7 +117,7 @@ class _FavoriteState extends State<Favorite> {
         title: Row(
           children: [
             Text(
-              "Rent",
+              "مكانك",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -128,135 +140,140 @@ class _FavoriteState extends State<Favorite> {
             ),
           ],
         ),
-        backgroundColor: Colors.teal[800],
+        backgroundColor: Colors.teal[900],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child:
-            _loading
-                ? const Center(child: CircularProgressIndicator())
-                : filteredProperties.isEmpty
-                ? Center(
-                  child: Text(
-                    "لا توجد عقارات مفضله",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.teal[800],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child:
+              filteredProperties.isEmpty
+                  ? Center(
+                    child: Text(
+                      "لا توجد عقارات مفضله",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal[800],
+                      ),
                     ),
-                  ),
-                )
-                : Column(
-                  children: [
-                    AnimatedContainer(
-                      duration: Duration(milliseconds: 300),
-                      height: _showTitle ? 50 : 0,
-                      child: Center(
-                        child: Text(
-                          "العقارات المفضله",
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal[900],
+                  )
+                  : _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
+                    children: [
+                      AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        height: _showTitle ? 50 : 0,
+                        child: Center(
+                          child: Text(
+                            "العقارات المفضله",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal[900],
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                    Expanded(
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: (notification) {
-                          if (notification is ScrollUpdateNotification) {
-                            setState(() {
-                              _showTitle = notification.metrics.pixels < 50;
-                            });
-                          }
-                          return true;
-                        },
-                        child: GridView.builder(
-                          shrinkWrap: true,
-                          physics:
-                              AlwaysScrollableScrollPhysics(), // تمكين التمرير
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 10,
-                                childAspectRatio: 0.69,
-                              ),
-                          itemCount:
-                              filteredProperties
-                                  .length, // استخدام filteredProperties
-                          itemBuilder: (context, index) {
-                            var property =
-                                filteredProperties[index]; // استخدام filteredProperties
-                            return InkWell(
-                              onTap: () async {
-                                await Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => RealEstateDetailsPage(
-                                          fav: true,
-                                          favoriteProperties:
-                                              favoriteProperties,
-                                          images: List<String>.from(
-                                            property['photos'],
-                                          ),
-                                          videos: List<String>.from(
-                                            property['videos'],
-                                          ),
-                                          id: '${property['id']}',
-                                          owner_id: '${property['owner_id']}',
-                                          terms_and_conditions:
-                                              '${property['terms_and_conditions']}',
-                                          title: '${property['address']}',
-                                          price: '${property['rent_amount']}',
-                                          location: '${property['address']}',
-                                          description:
-                                              '${property['description']}',
-                                          phone: '${property['phone']}',
-                                          state:
-                                              '${property['property_state']}',
-                                          latitude: '${property['latitude']}',
-                                          longitude: '${property['longitude']}',
-                                          floor_number:
-                                              '${property['floor_number']}',
-                                          room_count:
-                                              '${property['room_count']}',
-                                          property_direction:
-                                              '${property['property_direction']}',
-                                          rating: '${property['rate']}',
-                                        ),
-                                  ),
-                                ).then((value) {
-                                  if (value == true) {
-                                    setState(
-                                      () {},
-                                    ); // إعادة بناء الصفحة لتحديث القائمة
-                                  }
-                                });
-                              },
-                              child: RealEstateCard(
-                                image:
-                                    "$linkImageRoot/${property['photos'][0]}",
-                                title: '${property['address']}',
-                                price: '${property['rent_amount']}',
-                                location: '${property['address']}',
-                                description: '${property['description']}',
-                                rate: '${property['rate']}',
-                                status: '${property['property_state']}',
-                                isFavorite: favoriteProperties.contains(
-                                  int.parse(property['id']),
-                                ), // ✅ تحديد إذا كان العقار في المفضل
-                              ),
-                            );
+                      Expanded(
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification is ScrollUpdateNotification) {
+                              setState(() {
+                                _showTitle = notification.metrics.pixels < 50;
+                              });
+                            }
+                            return true;
                           },
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics:
+                                AlwaysScrollableScrollPhysics(), // تمكين التمرير
+                            gridDelegate:
+                                SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: 300,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                  childAspectRatio: _calculateAspectRatio(
+                                    context,
+                                  ),
+                                ),
+                            itemCount:
+                                filteredProperties
+                                    .length, // استخدام filteredProperties
+                            itemBuilder: (context, index) {
+                              var property =
+                                  filteredProperties[index]; // استخدام filteredProperties
+                              return InkWell(
+                                onTap: () async {
+                                  await Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => RealEstateDetailsPage(
+                                            fav: true,
+                                            favoriteProperties:
+                                                favoriteProperties,
+                                            images: List<String>.from(
+                                              property['photos'],
+                                            ),
+                                            videos: List<String>.from(
+                                              property['videos'],
+                                            ),
+                                            id: '${property['id']}',
+                                            owner_id: '${property['owner_id']}',
+                                            terms_and_conditions:
+                                                '${property['terms_and_conditions']}',
+                                            title: '${property['address']}',
+                                            price: '${property['rent_amount']}',
+                                            location: '${property['address']}',
+                                            description:
+                                                '${property['description']}',
+                                            phone: '${property['phone']}',
+                                            state:
+                                                '${property['property_state']}',
+                                            latitude: '${property['latitude']}',
+                                            longitude:
+                                                '${property['longitude']}',
+                                            floor_number:
+                                                '${property['floor_number']}',
+                                            room_count:
+                                                '${property['room_count']}',
+                                            property_direction:
+                                                '${property['property_direction']}',
+                                            rating: '${property['rate']}',
+                                          ),
+                                    ),
+                                  ).then((value) {
+                                    if (value == true) {
+                                      setState(
+                                        () {},
+                                      ); // إعادة بناء الصفحة لتحديث القائمة
+                                    }
+                                  });
+                                },
+                                child: RealEstateCard(
+                                  image:
+                                      "$linkImageRoot/${property['photos'][0]}",
+                                  title: '${property['address']}',
+                                  price: '${property['rent_amount']}',
+                                  location: '${property['address']}',
+                                  description: '${property['description']}',
+                                  rate: '${property['rate']}',
+                                  status: '${property['property_state']}',
+                                  isFavorite: favoriteProperties.contains(
+                                    int.parse(property['id']),
+                                  ), // ✅ تحديد إذا كان العقار في المفضل
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+        ),
       ),
     );
   }

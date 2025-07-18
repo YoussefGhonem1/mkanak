@@ -29,8 +29,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     _loadMessages();
-    // يمكنك إضافة WebSocket هنا للتحديث الفوري
-    // في initState
+
     Timer.periodic(Duration(seconds: 2), (timer) {
       _loadMessages(); // جلب الرسائل كل 5 ثواني
     });
@@ -125,29 +124,37 @@ class _ChatScreenState extends State<ChatScreen> {
             Navigator.pop(context); // الرجوع للصفحة السابقة
           },
         ),
-        title: Text(
-          "الدعم الفني",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.teal[800],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                return _buildMessageBubble(_messages[index]);
-              },
+        title: Align(
+          alignment: Alignment.centerRight, 
+          child: Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: Text(
+              "الدعم الفني",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.white,
+              ),
             ),
           ),
-          _buildMessageInput(),
-        ],
+        ),
+        backgroundColor: Colors.teal[900],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  return _buildMessageBubble(_messages[index]);
+                },
+              ),
+            ),
+            _buildMessageInput(),
+          ],
+        ),
       ),
     );
   }
@@ -163,28 +170,35 @@ class _ChatScreenState extends State<ChatScreen> {
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
           color:
-              message.isSentByMe == false
-                  ? Colors.teal[100]
-                  : Colors.teal[800],
+              message.isSentByMe == false ? Colors.teal[100] : Colors.teal[800],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Column(children: [Text(message.content , style: TextStyle(
-                  color: message.isSentByMe == false
-                  ? Colors.teal[900]
-                  : Colors.teal[100],
-                  fontSize: 15,
-                    fontWeight: FontWeight.bold,
-
-                ),),SizedBox(height: 4),
-              Text(
-                DateFormat('HH:mm').format(message.timestamp),
-                style: TextStyle(
-                  color: message.isSentByMe == false
-                  ? Colors.teal[900]
-                  : Colors.teal[100],
-                  fontSize: 12,
-                ),
-              ),]),
+        child: Column(
+          children: [
+            Text(
+              message.content,
+              style: TextStyle(
+                color:
+                    message.isSentByMe == false
+                        ? Colors.teal[900]
+                        : Colors.teal[100],
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              DateFormat('HH:mm').format(message.timestamp),
+              style: TextStyle(
+                color:
+                    message.isSentByMe == false
+                        ? Colors.teal[900]
+                        : Colors.teal[100],
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

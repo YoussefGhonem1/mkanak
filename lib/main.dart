@@ -7,9 +7,10 @@ import 'admin/home_admin.dart';
 import 'auth/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 late SharedPreferences sharedPref;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
+ 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -20,7 +21,9 @@ void main() async {
   // يجب أن يتم استدعاء تهيئة الإشعارات المحلية قبل runApp
   await FirebaseNotifications().initializeLocalNotifications(); // إضافة هذه الدالة الجديدة هنا
 
-  runApp(const MyApp());
+  runApp(
+    const MyApp(),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -31,6 +34,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
+       
         home: sharedPref.getString("id") == null
             ? LoginScreen()
             : sharedPref.getString("type") == "admin"

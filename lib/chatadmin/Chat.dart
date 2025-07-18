@@ -17,12 +17,12 @@ class Chat {
 
   factory Chat.fromJson(Map<String, dynamic> json) {
     return Chat(
-      id: json['id'],
-      userId: json['user_id'],
-      userName: json['user_name'],
-      lastMessage: json['last_message'],
-      lastMessageAt: DateTime.parse(json['last_message_at']),
-      unreadCount: json['unread_count'] ?? 0,
+      id: int.tryParse(json['id'].toString()) ?? 0,
+      userId:  int.tryParse(json['user_id'].toString()) ?? 0,
+      userName: json['user_name'] ?? '',
+      lastMessage: json['last_message'] ?? '',
+      lastMessageAt: DateTime.parse(json['last_message_at'] ?? '1970-01-01T00:00:00.000Z'), 
+      unreadCount:int.tryParse(json['unreadCount'].toString()) ?? 0,
     );
   }
   Chat copyWith({
