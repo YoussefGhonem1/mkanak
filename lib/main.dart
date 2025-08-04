@@ -1,29 +1,23 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rento/firebase_options.dart';
-import 'package:rento/notifications/firebase_notification.dart';
-import 'owner/home_owner.dart';
-import 'admin/home_admin.dart';
-import 'auth/login.dart';
+import 'package:rento/src/features/notifications/repository/firebase_notification.dart';
+import 'package:rento/src/shared/routing/app_routes.dart';
+import 'package:rento/src/shared/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 late SharedPreferences sharedPref;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
- 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   sharedPref = await SharedPreferences.getInstance();
+  await FirebaseNotifications().initNotification();
+  await FirebaseNotifications().initializeLocalNotifications();
 
-  // تهيئة FirebaseNotifications التي ستشمل الآن تهيئة الإشعارات المحلية
-  await FirebaseNotifications().initNotification(); //
-  // يجب أن يتم استدعاء تهيئة الإشعارات المحلية قبل runApp
-  await FirebaseNotifications().initializeLocalNotifications(); // إضافة هذه الدالة الجديدة هنا
-
-  runApp(
-    const MyApp(),
-  );
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -33,13 +27,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: navigatorKey,
-        debugShowCheckedModeBanner: false,
-       
-        home: sharedPref.getString("id") == null
-            ? LoginScreen()
-            : sharedPref.getString("type") == "admin"
-                ? HomeAdmin()
-                : HomeOwner()
-                );
+      debugShowCheckedModeBanner: false,
+       onGenerateRoute: AppRoutes.onGenerateRoute,
+      theme: appTheme,
+       initialRoute: sharedPref.getString("id") == null
+      ? '/login'
+      : sharedPref.getString("type") == "admin"
+          ? '/homeAdmin'
+          : '/homeOwner',
+    );
   }
 }
