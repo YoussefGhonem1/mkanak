@@ -3,17 +3,16 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 abstract class AppColors {
-  static const Color primaryColor = Color(0xFF8E6CEF);
-  static const Color bgLightColor = Color(0xFFFFFFFF);
-  static const Color lightGrey = Color.fromARGB(255, 242, 241, 241);
-  static const Color bgDarkColor = Color(0xFF1D182A);
-  static const Color darkGrey = Color(0xFF342F3F);
-  static const Color orange = Color(0xFFEC6D26);
-  static const Color red = Color(0xFFEC6D26);
-  static const Color yellow = Color(0xFFF4BD2F);
-  static const Color blue = Color(0xFF4468E5);
-  static const Color inputHintLight = Color(0x80272727);
-  static const Color inputHintDark = Color(0x80FFFFFF);
-  static final Color greyDarkColor = Color(0xFFFFFFFF).withOpacity(0.5);
-  static final Color greyLightFontColor = Color(0xFF272727).withOpacity(0.5);
+  static const  teal900 =  Color(0xFF004D40);
+  static const  teal800 =  Color(0xFF00796B);
+  static const  teal700 =  Color(0xFF009688);
+  static const teal600 =  Color(0xFF26A69A);
+  static const teal500 =  Color(0xFF4DB6AC);
+
+  static const teal400 =  Color(0xFF80CBC4);
+  static const teal300 =  Color(0xFFB2DFDB);
+  static const teal200 =  Color(0xFFE0F2F1);
+  static const teal100 =  Color(0xFFB2DFDB);
+  static const teal50 =  Color(0xFFE0F2F1);
+  static const orange =  Color(0xFFFF9800);
 }

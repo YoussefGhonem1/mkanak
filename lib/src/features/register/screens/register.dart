@@ -147,26 +147,31 @@ class RegisterScreen extends ConsumerWidget {
                                     ),
                                   ),
                                 const SizedBox(height: 20),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.teal[800],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.teal[800],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 17,
+                                        // Remove horizontal padding for full width
+                                      ),
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 17,
-                                      horizontal: 150,
-                                    ),
-                                  ),
-                                  onPressed:
-                                      () =>
-                                          registerController.register(context),
-                                  child: const Text(
-                                    "سجل",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                    onPressed:
+                                        () => registerController.register(
+                                          context,
+                                        ),
+
+                                    child: const Text(
+                                      "سجل",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),

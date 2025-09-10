@@ -6,7 +6,6 @@ import 'package:rento/src/features/favourits/screens/favorites.dart';
 import 'package:rento/src/shared/componants/get_location.dart';
 import 'package:rento/src/shared/theme/theme.dart';
 
-
 // ignore: must_be_immutable
 class RealEstateDetailsPage extends StatefulWidget {
   final List<String> images;
@@ -503,6 +502,13 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.teal[50],
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onPressed: () async {
                     if (startDate.isAfter(endDate)) {
@@ -521,8 +527,11 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                       builder:
                           (ctx) => AlertDialog(
                             backgroundColor: Colors.teal[50],
-                            title: Text("تأكيد", textAlign: TextAlign.center),
-                            content: Text(
+                            title: const Text(
+                              "تأكيد",
+                              textAlign: TextAlign.center,
+                            ),
+                            content: const Text(
                               'عند موافقه صاحب العقار على عرضك سوف يتوجب عليك دفع 20% من المبلغ لتاكيد حجزك',
                               textAlign: TextAlign.center,
                             ),
@@ -530,16 +539,34 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.of(ctx).pop(false),
-                                child: Text('إلغاء'),
+                                child: Text(
+                                  'إلغاء',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.teal[900],
+                                  ),
+                                ),
                               ),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.teal[800],
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                                 onPressed: () => Navigator.of(ctx).pop(true),
-                                child: Text(
+                                child: const Text(
                                   'تأكيد',
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ],
@@ -646,7 +673,7 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
           isSuccess: true,
         );
 
-        // تحديث واجهة المستخدم
+    
         if (mounted) {
           setState(() {});
         }
@@ -683,7 +710,6 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Number of People Selector
               Directionality(
                 textDirection: TextDirection.rtl,
                 child: Row(
@@ -788,7 +814,17 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
               ),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal[50]),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal[50],
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+              ),
               onPressed: () {
                 finalgroupType = groupType;
                 finalnumberOfPeople = '$numberOfPeople';
