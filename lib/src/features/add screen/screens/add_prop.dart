@@ -8,7 +8,6 @@ import 'package:rento/main.dart';
 import 'package:rento/src/features/home/screens/home_admin.dart';
 import 'package:rento/src/features/home/screens/home_owner.dart';
 
-
 class AddRealEstatePage extends StatefulWidget {
   const AddRealEstatePage({super.key});
 
@@ -270,26 +269,49 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                   // حقل الموقع
                                   TextFormField(
                                     controller: _locationController,
+                                    textAlign: TextAlign.right,
+                                    textDirection: TextDirection.rtl,
                                     decoration: InputDecoration(
-                                      labelText: "الموقع",
-                                      labelStyle: TextStyle(
-                                        color: Colors.teal[900],
+                                      label: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          "الموقع",
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                          ),
+                                        ),
                                       ),
+                                      hintText: "(مكان يسهل فتحه على الخريطه)",
                                       hintStyle: TextStyle(
                                         color: Colors.teal[900],
                                         fontSize: 14,
                                       ),
-                                      hintText: "(مكان يسهل فتحه على الخريطه)",
                                       filled: true,
                                       fillColor: Colors.white,
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(15),
-                                        borderSide: BorderSide.none,
+                                        borderSide: BorderSide(
+                                          color: Colors.grey[300]!,
+                                        ),
                                       ),
-                                      prefixIcon: Icon(
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                        borderSide: BorderSide(
+                                          color: Colors.grey[300]!,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                        borderSide: BorderSide(
+                                          color: Colors.teal[900]!,
+                                        ),
+                                      ),
+                                      suffixIcon: Icon(
                                         Icons.location_on,
                                         color: Colors.teal[900],
                                       ),
+                                      alignLabelWithHint: true,
+                                      isDense: true,
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -298,15 +320,21 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                       return null;
                                     },
                                   ),
+
                                   const SizedBox(height: 20),
 
                                   // قسم رقم الطابق
                                   DropdownButtonFormField<String>(
+                                    value: selectedFloor,
                                     decoration: InputDecoration(
-                                      labelText: 'رقم الطابق',
-
-                                      labelStyle: TextStyle(
-                                        color: Colors.teal[900],
+                                      label: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          'رقم الطابق',
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                          ),
+                                        ),
                                       ),
                                       filled: true,
                                       fillColor: Colors.white,
@@ -316,15 +344,15 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                       ),
                                     ),
                                     dropdownColor:
-                                        Colors.teal[50], // لون الخلفية للقائمة
+                                        Colors.teal[50], // لون خلفية القائمة
                                     iconEnabledColor: Colors.teal[900],
                                     borderRadius: BorderRadius.circular(15),
                                     style: TextStyle(
-                                      // ده لون القيمة المعروضة بعد الاختيار
-                                      color: Colors.teal[900],
+                                      color:
+                                          Colors
+                                              .teal[900], // لون النص بعد الاختيار
                                       fontSize: 16,
                                     ),
-                                    value: selectedFloor,
                                     items:
                                         [
                                           'أرضي',
@@ -336,16 +364,14 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                         ].map((floor) {
                                           return DropdownMenuItem(
                                             value: floor,
-                                            child: Align(
-                                              alignment: Alignment.centerRight,
-                                              child: Text(
-                                                floor,
-                                                style: TextStyle(
-                                                  color:
-                                                      Colors
-                                                          .teal[900], // ده لون العناصر داخل القائمة فقط
-                                                  fontSize: 16,
-                                                ),
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                              floor,
+                                              textAlign: TextAlign.right,
+                                              textDirection: TextDirection.rtl,
+                                              style: TextStyle(
+                                                color: Colors.teal[900],
+                                                fontSize: 16,
                                               ),
                                             ),
                                           );
@@ -355,14 +381,38 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                         selectedFloor = value;
                                       });
                                     },
+                                    isExpanded: true,
+                                    menuMaxHeight: 300,
+                                    selectedItemBuilder: (context) {
+                                      return [
+                                        'أرضي',
+                                        'أول',
+                                        'ثاني',
+                                        'ثالث',
+                                        'رابع',
+                                        'خامس',
+                                      ].map((floor) {
+                                        return Container(
+                                          alignment: Alignment.centerRight,
+                                          child: Text(
+                                            selectedFloor ?? floor,
+                                            textAlign: TextAlign.right,
+                                            textDirection: TextDirection.rtl,
+                                            style: TextStyle(
+                                              color: Colors.teal[900],
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList();
+                                    },
                                   ),
 
                                   const SizedBox(height: 20),
 
                                   // قسم عدد الغرف
                                   Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
                                         'عدد الغرف',
@@ -393,10 +443,16 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                   const SizedBox(height: 20),
 
                                   DropdownButtonFormField<String>(
+                                    value: selectedDirection,
                                     decoration: InputDecoration(
-                                      labelText: 'واجهة العقار',
-                                      labelStyle: TextStyle(
-                                        color: Colors.teal[900],
+                                      label: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          'واجهة العقار',
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                          ),
+                                        ),
                                       ),
                                       filled: true,
                                       fillColor: Colors.white,
@@ -406,13 +462,13 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                       ),
                                     ),
                                     dropdownColor:
-                                        Colors.teal[50], // لون الخلفية للقائمة
+                                        Colors.teal[50], // لون خلفية القائمة
                                     iconEnabledColor: Colors.teal[900],
                                     borderRadius: BorderRadius.circular(15),
-                                    value: selectedDirection,
                                     style: TextStyle(
-                                      // ده لون القيمة المعروضة بعد الاختيار
-                                      color: Colors.teal[900],
+                                      color:
+                                          Colors
+                                              .teal[900], // لون النص بعد الاختيار
                                       fontSize: 16,
                                     ),
                                     items:
@@ -428,16 +484,13 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                         ].map((dir) {
                                           return DropdownMenuItem(
                                             value: dir,
-                                            child: Align(
-                                              alignment: Alignment.centerRight,
-                                              child: Text(
-                                                dir,
-                                                style: TextStyle(
-                                                  color:
-                                                      Colors
-                                                          .teal[900], // ده لون العناصر داخل القائمة فقط
-                                                  fontSize: 16,
-                                                ),
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                              dir,
+                                              textDirection: TextDirection.rtl,
+                                              style: TextStyle(
+                                                color: Colors.teal[900],
+                                                fontSize: 16,
                                               ),
                                             ),
                                           );
@@ -447,6 +500,33 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                         selectedDirection = value;
                                       });
                                     },
+                                    isExpanded: true,
+                                    menuMaxHeight: 300,
+                                    selectedItemBuilder: (context) {
+                                      return [
+                                        'بحري',
+                                        'قبلي',
+                                        'غربي',
+                                        'شرقي',
+                                        'بحري غربي',
+                                        'قبلي شرقي',
+                                        'بحري شرقي',
+                                        'قبلي غربي',
+                                      ].map((dir) {
+                                        return Container(
+                                          alignment: Alignment.centerRight,
+                                          child: Text(
+                                            selectedDirection ?? dir,
+                                            textAlign: TextAlign.right,
+                                            textDirection: TextDirection.rtl,
+                                            style: TextStyle(
+                                              color: Colors.teal[900],
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList();
+                                    },
                                   ),
 
                                   const SizedBox(height: 20),
@@ -455,8 +535,18 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                   TextFormField(
                                     controller: _descriptionController,
                                     maxLines: 4,
+                                    textAlign: TextAlign.right,
+                                    textDirection: TextDirection.rtl,
                                     decoration: InputDecoration(
-                                      labelText: "الوصف",
+                                      label: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          "الوصف",
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                          ),
+                                        ),
+                                      ),
                                       labelStyle: TextStyle(
                                         color: Colors.teal[900],
                                       ),
@@ -475,15 +565,24 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                       return null;
                                     },
                                   ),
+
                                   const SizedBox(height: 20),
+
+                                  // الشروط
                                   TextFormField(
                                     controller: _termsAndConditionsController,
                                     maxLines: 4,
+                                    textAlign: TextAlign.right,
+                                    textDirection: TextDirection.rtl,
                                     decoration: InputDecoration(
-                                      labelText:
+                                      label: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
                                           "الشروط التى يجب ان يتبعها المستأجر",
-                                      labelStyle: TextStyle(
-                                        color: Colors.teal[900],
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                          ),
+                                        ),
                                       ),
                                       filled: true,
                                       fillColor: Colors.white,
@@ -495,20 +594,29 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return "الرجاء إدخال الوصف";
+                                        return "الرجاء إدخال الشروط";
                                       }
                                       return null;
                                     },
                                   ),
+
                                   const SizedBox(height: 20),
-                                  // قسم معلومات الاتصال
+
+                                  // رقم الهاتف
                                   TextFormField(
                                     controller: _phoneController,
                                     keyboardType: TextInputType.phone,
+                                    textAlign: TextAlign.right,
+                                    textDirection: TextDirection.rtl,
                                     decoration: InputDecoration(
-                                      labelText: "رقم الهاتف",
-                                      labelStyle: TextStyle(
-                                        color: Colors.teal[900],
+                                      label: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          "رقم الهاتف",
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                          ),
+                                        ),
                                       ),
                                       filled: true,
                                       fillColor: Colors.white,
@@ -516,10 +624,11 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                         borderRadius: BorderRadius.circular(15),
                                         borderSide: BorderSide.none,
                                       ),
-                                      prefixIcon: Icon(
+                                      suffixIcon: Icon(
                                         Icons.phone,
                                         color: Colors.teal[900],
                                       ),
+                                      alignLabelWithHint: true,
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -530,16 +639,28 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                   ),
 
                                   const SizedBox(height: 20),
+
+                                  // تكلفة الإيجار
                                   TextFormField(
                                     controller: _rentAmountController,
                                     keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.right,
+                                    textDirection: TextDirection.rtl,
                                     decoration: InputDecoration(
-                                      labelText: "تكلفة الإيجار",
+                                      label: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          "تكلفة الإيجار",
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                          ),
+                                        ),
+                                      ),
                                       hintText:
                                           "يتم خصم 10% من قيمه الايجار رسوم",
                                       hintStyle: TextStyle(
                                         color: Colors.teal[900],
-                                        fontSize: 14, // حجم مناسب للقراءة
+                                        fontSize: 14,
                                       ),
                                       filled: true,
                                       fillColor: Colors.white,
@@ -547,26 +668,25 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                         borderRadius: BorderRadius.circular(15),
                                         borderSide: BorderSide(
                                           color: Colors.grey[300]!,
-                                        ), // أضف حدودًا خفيفة
+                                        ),
                                       ),
                                       enabledBorder: OutlineInputBorder(
-                                        // حدود الحقل عند عدم التركيز
                                         borderRadius: BorderRadius.circular(15),
                                         borderSide: BorderSide(
                                           color: Colors.grey[300]!,
                                         ),
                                       ),
                                       focusedBorder: OutlineInputBorder(
-                                        // حدود الحقل عند التركيز
                                         borderRadius: BorderRadius.circular(15),
                                         borderSide: BorderSide(
                                           color: Colors.teal[900]!,
                                         ),
                                       ),
-                                      prefixIcon: Icon(
+                                      suffixIcon: Icon(
                                         Icons.attach_money,
                                         color: Colors.teal[900],
                                       ),
+                                      alignLabelWithHint: true,
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -575,15 +695,24 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                       return null;
                                     },
                                   ),
+
                                   const SizedBox(height: 20),
-                                  // قسم معلومات الاتصال
+
+                                  // رقم الفيزا / المحفظة
                                   TextFormField(
                                     controller: _walletController,
                                     keyboardType: TextInputType.phone,
+                                    textAlign: TextAlign.right,
+                                    textDirection: TextDirection.rtl,
                                     decoration: InputDecoration(
-                                      labelText: "رقم فيزا او محفظه كاش",
-                                      labelStyle: TextStyle(
-                                        color: Colors.teal[900],
+                                      label: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          "رقم فيزا او محفظه كاش",
+                                          style: TextStyle(
+                                            color: Colors.teal[900],
+                                          ),
+                                        ),
                                       ),
                                       filled: true,
                                       fillColor: Colors.white,
@@ -591,10 +720,11 @@ class _AddRealEstatePageState extends State<AddRealEstatePage> {
                                         borderRadius: BorderRadius.circular(15),
                                         borderSide: BorderSide.none,
                                       ),
-                                      prefixIcon: Icon(
+                                      suffixIcon: Icon(
                                         Icons.credit_card,
                                         color: Colors.teal[900],
                                       ),
+                                      alignLabelWithHint: true,
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {

@@ -14,8 +14,8 @@ import 'package:rento/src/features/login/screens/login.dart';
 import 'package:rento/src/features/orders%20screens/screens/order_admin_screen.dart';
 import 'package:rento/src/features/orders%20screens/screens/owner_orders_screen.dart';
 import 'package:rento/src/features/orders%20screens/screens/renter_orders_screen.dart';
-import 'package:url_launcher/url_launcher.dart'; 
-
+import 'package:rento/src/shared/routing/app_routes.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CustomDrawer extends StatelessWidget {
   final Crud crud;
@@ -80,7 +80,7 @@ class CustomDrawer extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const HomeOwner(),
+                            builder: (context) => const HomeAdmin(),
                           ),
                         );
                       } else {
@@ -128,7 +128,12 @@ class CustomDrawer extends StatelessWidget {
                   // صفحة الطلبات
                   _buildDrawerItem(
                     context,
-                    title: userType == "admin"?"الطلبات": userType == "owner"? "الطلبات على عقاراتى":"طلباتى",
+                    title:
+                        userType == "admin"
+                            ? "الطلبات"
+                            : userType == "owner"
+                            ? "الطلبات على عقاراتى"
+                            : "طلباتى",
                     icon: Icons.list_alt,
                     onTap: () {
                       if (userType == "admin") {
@@ -248,6 +253,33 @@ class CustomDrawer extends StatelessWidget {
                     },
                   ),
                   const Divider(color: Colors.white54, height: 10),
+                  _buildDrawerItem(
+                    context,
+                    title: "سياسة الخصوصية",
+                    icon: Icons.privacy_tip_outlined, // أيقونة مناسبة
+                    onTap: () {
+                      Navigator.pop(context); // إغلاق الـ Drawer أولاً
+                      Navigator.pushNamed(
+                        context,
+                        Routes.privacyPolicy,
+                      ); // الذهاب لصفحة سياسة الخصوصية
+                    },
+                  ),
+                  const Divider(color: Colors.white54, height: 10), // فاصل
+                  // **== العنصر الجديد: كيف يعمل التطبيق ==**
+                  _buildDrawerItem(
+                    context,
+                    title: "كيف يعمل التطبيق",
+                    icon: Icons.help_outline, // أيقونة مناسبة
+                    onTap: () {
+                      Navigator.pop(context); // إغلاق الـ Drawer أولاً
+                      Navigator.pushNamed(
+                        context,
+                        Routes.howItWorks,
+                      ); // الذهاب لصفحة الشرح
+                    },
+                  ),
+                  const Divider(color: Colors.white54, height: 10),
 
                   // ✅ جديد: رقم التواصل للشركة
                   _buildDrawerItem(
@@ -274,9 +306,9 @@ class CustomDrawer extends StatelessWidget {
                     title: "تسجيل الخروج",
                     icon: Icons.logout,
                     onTap: () async {
-                         await crud.postRequest(linkDeleteUserFcmToken, {
-                          "user_id": sharedPref.getString("id").toString(),
-                        });
+                      await crud.postRequest(linkDeleteUserFcmToken, {
+                        "user_id": sharedPref.getString("id").toString(),
+                      });
                       sharedPref.clear();
                       Navigator.pushReplacement(
                         context,
