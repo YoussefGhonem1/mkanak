@@ -52,6 +52,7 @@ const String linkDeleteOrder = "$linkServerName/orders/delete_order.php";
 const String linkUpdateOrderStatus = "$linkServerName/orders/update_status.php";
 const String linkRejectOrder = "$linkServerName/orders/reject_order.php";
 const String linkConfirmTransfer = "$linkServerName/orders/confirm_transfer.php";
+const String linkOwnerBookProperty = "$linkServerName/statues/owner_book_property.php";
 //payment
 const String linkGetPaymobOrderId = "$linkServerName/payment/get_paymob_order_id.php";
 const String linkUpdatePaymobOrderId = "$linkServerName/payment/update_paymob_order_id.php";
