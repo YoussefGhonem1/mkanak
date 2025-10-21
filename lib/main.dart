@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rento/firebase_options.dart';
 import 'package:rento/src/features/notifications/repository/firebase_notification.dart';
@@ -16,7 +17,13 @@ void main() async {
   sharedPref = await SharedPreferences.getInstance();
   await FirebaseNotifications().initNotification();
   await FirebaseNotifications().initializeLocalNotifications();
+  
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.transparent,
+  ));
 
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -31,7 +38,7 @@ class MyApp extends StatelessWidget {
        onGenerateRoute: AppRoutes.onGenerateRoute,
       theme: appTheme,
        initialRoute: sharedPref.getString("id") == null
-      ? '/login'
+      ? '/splash'
       : '/homeOwner'
      
     );
