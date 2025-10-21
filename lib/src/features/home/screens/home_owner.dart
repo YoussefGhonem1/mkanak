@@ -7,7 +7,6 @@ import 'package:rento/src/features/details/screens/details.dart';
 import 'package:rento/src/shared/componants/card.dart';
 import 'package:rento/src/shared/componants/custom_drawer.dart';
 
-
 class HomeOwner extends StatefulWidget {
   const HomeOwner({super.key});
 
@@ -84,11 +83,11 @@ class _HomeOwnerState extends State<HomeOwner> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     if (screenWidth < 400) {
-      return 0.65;
+      return 0.7;
     } else if (screenWidth < 800) {
-      return 0.75;
-    } else {
       return 0.8;
+    } else {
+      return 0.9;
     }
   }
 
@@ -148,14 +147,13 @@ class _HomeOwnerState extends State<HomeOwner> {
     });
   }
 
-  // دالة لتطبيق جميع الفلاتر بناءً على المدخلات
   void applyFilters() {
-    List tempFiltered = List.from(allProperties); // ابدأ بكل العقارات
+    List tempFiltered = List.from(allProperties);
 
     String nameQuery = searchNameController.text.toLowerCase();
     String fromPrice = searchFromPriceController.text;
     String toPrice = searchToPriceController.text;
-    String roomCountQuery = searchRoomCountController.text; // قيمة عدد الغرف
+    String roomCountQuery = searchRoomCountController.text;
 
     // فلتر الاسم
     if (nameQuery.isNotEmpty) {
@@ -389,39 +387,53 @@ class _HomeOwnerState extends State<HomeOwner> {
                   ),
                 ),
                 actions: <Widget>[
-                  ElevatedButton(
-                    onPressed: applyFilters,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal[800],
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal[800],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 17,
+                          // Remove horizontal padding for full width
+                        ),
+                      ),
+                      onPressed: applyFilters,
+                      child: const Text(
+                        "بحث",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    child: const Text("بحث"),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context); // إغلاق الـ Dialog بدون مسح
-                    },
-                    child: Text(
-                      "إلغاء",
-                      style: TextStyle(color: Colors.teal[700]),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      // مسح الفلاتر وإعادة تحميل العقارات الأصلية
-                      _clearFiltersInDialog(
-                        setDialogState,
-                      ); // مسح حقول الـ Dialog
-                      Navigator.pop(context); // إغلاق الـ Dialog
-                      await load(); // إعادة تحميل العقارات كلها
-                    },
-                    child: Text(
-                      "إلغاء الفلاتر",
-                      style: TextStyle(color: Colors.red[700]),
-                    ),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // إغلاق الـ Dialog بدون مسح
+                        },
+                        child: Text(
+                          "إلغاء",
+                          style: TextStyle(color: Colors.teal[700]),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          _clearFiltersInDialog(setDialogState);
+                          Navigator.pop(context);
+                          await load();
+                        },
+                        child: Text(
+                          "إلغاء الفلاتر",
+                          style: TextStyle(color: Colors.red[700]),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -448,7 +460,7 @@ class _HomeOwnerState extends State<HomeOwner> {
     return WillPopScope(
       onWillPop: _handleBackButton,
       child: Scaffold(
-        backgroundColor: Colors.teal[50],
+        backgroundColor: Colors.white,
         key: _scaffoldKey,
         drawer: CustomDrawer(
           crud: _crud,
@@ -573,6 +585,7 @@ class _HomeOwnerState extends State<HomeOwner> {
                             isFavorite: favoriteProperties.contains(
                               int.parse(property['id']),
                             ),
+                            propertyId: int.parse(property['id']),
                           ),
                         );
                       },

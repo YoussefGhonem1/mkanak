@@ -492,28 +492,41 @@ class _OrderAdminScreenState extends State<OrderAdminScreen> {
       appBar: AppBar(
         backgroundColor: Colors.teal[900],
         title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'إدارة الطلبات',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Colors.teal[50],
-              ),
-            ),
-            SizedBox(width: 50),
-            Expanded(
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.45,
               child: TextField(
                 controller: searchController,
                 decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
                   hintText: "ابحث عن طلب",
-                  hintStyle: TextStyle(color: Colors.white70),
-                  prefixIcon: Icon(Icons.search, color: Colors.white70),
-                  border: InputBorder.none,
+                  hintStyle: const TextStyle(color: Colors.white70),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white70),
+                  filled: true,
+                  fillColor: Colors.transparent,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
-                style: TextStyle(color: Colors.white),
-                onChanged: filterSearch, // تحديث البحث عند تغيير النص
+                style: const TextStyle(color: Colors.white),
+                onChanged: filterSearch,
               ),
+            ),
+            Row(
+              children: [
+                Text(
+                  "مكانك",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.teal[50],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Image.asset("images/drawer.png", height: 35, width: 35),
+              ],
             ),
           ],
         ),

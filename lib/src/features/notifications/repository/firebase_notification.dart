@@ -16,7 +16,9 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
   print('Notification background tap received!');
   if (notificationResponse.payload != null) {
     try {
-      final RemoteMessage message = RemoteMessage.fromMap(jsonDecode(notificationResponse.payload!));
+      final RemoteMessage message = RemoteMessage.fromMap(
+        jsonDecode(notificationResponse.payload!),
+      );
       // هنا يمكنك استدعاء handleMessage إذا كنت تريد نفس السلوك
       // ولكن تذكر أن navigatorKey قد لا يكون متاحًا بشكل موثوق في السياقات الخلفية
       // لذلك يفضل معالجة التوجيه أو البيانات بشكل مختلف هنا إذا كان التطبيق مغلقًا تمامًا.
@@ -38,26 +40,30 @@ class FirebaseNotifications {
 
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        );
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+        );
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
         // هذه الدالة تعمل عندما يكون التطبيق في المقدمة أو الخلفية ويتم النقر على الإشعار
         if (response.payload != null) {
-          final RemoteMessage message = RemoteMessage.fromMap(jsonDecode(response.payload!));
+          final RemoteMessage message = RemoteMessage.fromMap(
+            jsonDecode(response.payload!),
+          );
           handleMessage(message);
         }
       },
-      onDidReceiveBackgroundNotificationResponse: notificationTapBackground, // استخدام الدالة top-level هنا
+      onDidReceiveBackgroundNotificationResponse:
+          notificationTapBackground, // استخدام الدالة top-level هنا
     );
   }
 
@@ -87,22 +93,23 @@ class FirebaseNotifications {
   Future<void> showLocalNotification(RemoteMessage message) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-      'your_channel_id', // يجب أن تكون فريدة
-      'Your Channel Name',
-      channelDescription: 'Your channel description',
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: false,
+          'your_channel_id', // يجب أن تكون فريدة
+          'Your Channel Name',
+          channelDescription: 'Your channel description',
+          importance: Importance.max,
+          priority: Priority.high,
+          showWhen: false,
+        );
+    final NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
     );
-    final NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
 
     await flutterLocalNotificationsPlugin.show(
-      0, // id الإشعار (يمكن أن يكون فريداً لكل إشعار)
+      0,
       message.notification?.title ?? 'New Notification',
       message.notification?.body ?? 'You have a new message',
       platformChannelSpecifics,
-      payload: jsonEncode(message.toMap()), // إرسال حمولة الرسالة كـ payload
+      payload: jsonEncode(message.toMap()),
     );
   }
 

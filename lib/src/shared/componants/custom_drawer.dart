@@ -80,7 +80,7 @@ class CustomDrawer extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const HomeAdmin(),
+                            builder: (context) => const HomeOwner(),
                           ),
                         );
                       } else {

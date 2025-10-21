@@ -6,7 +6,6 @@ import 'package:rento/src/features/favourits/screens/favorites.dart';
 import 'package:rento/src/shared/componants/get_location.dart';
 import 'package:rento/src/shared/theme/theme.dart';
 
-
 // ignore: must_be_immutable
 class RealEstateDetailsPage extends StatefulWidget {
   final List<String> images;
@@ -67,7 +66,7 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
 
   bool isOwnerOrAdmin(String userId, String propertyOwnerId) {
     // Check if the user is the owner of the property or an admin
-    return userId == propertyOwnerId || sharedPref.getString("role") == "admin";
+    return userId == propertyOwnerId || sharedPref.getString("type") == "admin";
   }
 
   int calculateNumberOfDays(DateTime start, DateTime end) {
@@ -82,7 +81,6 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
   void initState() {
     super.initState();
     stateNotifier = ValueNotifier(widget.state);
-
     fetchPropertyState(); // جلب حالة العقار من الخادم
     checkUserBooking(); // جلب حجوزات المستخدم
   }
@@ -151,6 +149,145 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
         userBookings = []; // تفريغ القائمة في حالة عدم وجود حجوزات
       });
     }
+  }
+
+  Future<void> ownerBookProperty(
+    String propertyId,
+    DateTime start,
+    DateTime end,
+  ) async {
+    try {
+      var response = await _crud.postRequest(linkOwnerBookProperty, {
+        'user_id': sharedPref.getString("id").toString(),
+        'property_id': propertyId,
+        'start_date': start.toIso8601String().split('T')[0],
+        'end_date': end.toIso8601String().split('T')[0],
+      });
+
+      if (response['status'] == "success") {
+        // ✅ السطر الذي تم إضافته
+        // هذا السطر يقوم بتحديث حالة العقار في الواجهة مباشرة
+        await fetchPropertyState();
+
+        await checkUserBooking();
+        showCustomMessage(context, "تم حجز العقار بنجاح", isSuccess: true);
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        showCustomMessage(context, "فشل في حجز العقار", isSuccess: false);
+      }
+    } catch (e) {
+      showCustomMessage(context, "حدث خطأ", isSuccess: false);
+      print("Error booking property: $e");
+    }
+  }
+
+  Widget _showOwnerBookingDialog() {
+    DateTime minPossibleStartDate = DateTime.now();
+    DateTime startDate = DateTime(
+      minPossibleStartDate.year,
+      minPossibleStartDate.month,
+      minPossibleStartDate.day,
+    );
+    DateTime endDate = startDate;
+
+    return StatefulBuilder(
+      builder: (context, setDialogState) {
+        return AlertDialog(
+          backgroundColor: Colors.teal[900],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Center(
+            child: Text(
+              "حجز العقار (للمالك)",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.teal[50],
+              ),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildDatePickerButton(
+                context,
+                label: "تاريخ البدء",
+                date: startDate,
+                minDate: minPossibleStartDate,
+                onDateSelected: (picked) {
+                  setDialogState(() {
+                    startDate = DateTime(picked.year, picked.month, picked.day);
+                    if (endDate.isBefore(startDate)) {
+                      endDate = startDate;
+                    }
+                  });
+                },
+              ),
+              const SizedBox(height: 14),
+              _buildDatePickerButton(
+                context,
+                label: "تاريخ الانتهاء",
+                date: endDate,
+                minDate: startDate,
+                onDateSelected: (picked) {
+                  setDialogState(() {
+                    endDate = DateTime(picked.year, picked.month, picked.day);
+                  });
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "إلغاء",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal[50],
+                ),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal[50],
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () async {
+                if (startDate.isAfter(endDate)) {
+                  showCustomMessage(
+                    context,
+                    "تاريخ البدء يجب أن يكون قبل أو يساوي تاريخ الانتهاء.",
+                    isSuccess: false,
+                  );
+                  return;
+                }
+                Navigator.pop(context);
+                await ownerBookProperty(widget.id, startDate, endDate);
+              },
+              child: Text(
+                "تأكيد الحجز",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal[900],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget buildUserBookings() {
@@ -228,6 +365,8 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                                         child: Text(
                                           'إلغاء',
                                           style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
                                             color: Colors.teal[900],
                                           ),
                                         ),
@@ -235,6 +374,10 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                                       ElevatedButton(
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.teal[800],
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                            vertical: 12,
+                                          ),
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
                                               8,
@@ -247,7 +390,11 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                                         child: Text(
                                           'متأكد',
                                           style: TextStyle(
-                                            color: Colors.teal[50],
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color:
+                                                Colors
+                                                    .teal[50], // هو نفس teal[50] بس أوضح كـ contrast
                                           ),
                                         ),
                                       ),
@@ -503,6 +650,13 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.teal[50],
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onPressed: () async {
                     if (startDate.isAfter(endDate)) {
@@ -521,8 +675,11 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                       builder:
                           (ctx) => AlertDialog(
                             backgroundColor: Colors.teal[50],
-                            title: Text("تأكيد", textAlign: TextAlign.center),
-                            content: Text(
+                            title: const Text(
+                              "تأكيد",
+                              textAlign: TextAlign.center,
+                            ),
+                            content: const Text(
                               'عند موافقه صاحب العقار على عرضك سوف يتوجب عليك دفع 20% من المبلغ لتاكيد حجزك',
                               textAlign: TextAlign.center,
                             ),
@@ -530,16 +687,34 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.of(ctx).pop(false),
-                                child: Text('إلغاء'),
+                                child: Text(
+                                  'إلغاء',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.teal[900],
+                                  ),
+                                ),
                               ),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.teal[800],
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                                 onPressed: () => Navigator.of(ctx).pop(true),
-                                child: Text(
+                                child: const Text(
                                   'تأكيد',
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ],
@@ -646,7 +821,6 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
           isSuccess: true,
         );
 
-        // تحديث واجهة المستخدم
         if (mounted) {
           setState(() {});
         }
@@ -683,7 +857,6 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Number of People Selector
               Directionality(
                 textDirection: TextDirection.rtl,
                 child: Row(
@@ -788,7 +961,17 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
               ),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal[50]),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal[50],
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+              ),
               onPressed: () {
                 finalgroupType = groupType;
                 finalnumberOfPeople = '$numberOfPeople';
@@ -1408,30 +1591,65 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                     const SizedBox(height: 10),
                     buildUserBookings(), // ✅ عرض حجوزات المستخدم هنا
                     const SizedBox(height: 20),
-
                     Center(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.teal[50],
-                          backgroundColor: Colors.teal[900],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                      child: Column(
+                        children: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.teal[50],
+                              backgroundColor: Colors.teal[900],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 130,
+                              ),
+                            ),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (context) => _showPeopleAndTypeDialog(),
+                              );
+                            },
+                            child: const Text(
+                              "احجز الان",
+                              style: TextStyle(fontSize: 20),
+                            ),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 130,
-                          ),
-                        ),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => _showPeopleAndTypeDialog(),
-                          );
-                        },
-                        child: const Text(
-                          "احجز الان",
-                          style: TextStyle(fontSize: 20),
-                        ),
+                          if (isOwnerOrAdmin(
+                            sharedPref.getString("id").toString(),
+                            widget.owner_id,
+                          ))
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: Colors.orange[800],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 80,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (context) => _showOwnerBookingDialog(),
+                                  );
+                                },
+                                child: const Text(
+                                  "حجز للمالك",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
 

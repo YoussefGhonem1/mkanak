@@ -32,9 +32,8 @@ class MyApp extends StatelessWidget {
       theme: appTheme,
        initialRoute: sharedPref.getString("id") == null
       ? '/login'
-      : sharedPref.getString("type") == "admin"
-          ? '/homeAdmin'
-          : '/homeOwner',
+      : '/homeOwner'
+     
     );
   }
 }

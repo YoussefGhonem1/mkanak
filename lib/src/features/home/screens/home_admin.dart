@@ -7,7 +7,6 @@ import 'package:rento/src/features/details/screens/details.dart';
 import 'package:rento/src/shared/componants/card.dart';
 import 'package:rento/src/shared/componants/custom_drawer.dart';
 
-
 class HomeAdmin extends StatefulWidget {
   const HomeAdmin({super.key});
 
@@ -128,11 +127,11 @@ class _HomeAdminState extends State<HomeAdmin> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     if (screenWidth < 400) {
-      return 0.65;
+      return 0.7;
     } else if (screenWidth < 800) {
-      return 0.75;
-    } else {
       return 0.8;
+    } else {
+      return 0.9;
     }
   }
 
@@ -403,39 +402,56 @@ class _HomeAdminState extends State<HomeAdmin> {
                   ),
                 ),
                 actions: <Widget>[
-                  ElevatedButton(
-                    onPressed: applyFilters,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal[800],
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal[800],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 17,
+                          // Remove horizontal padding for full width
+                        ),
+                      ),
+                      onPressed: () => applyFilters,
+                      child: const Text(
+                        "بحث",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    child: const Text("بحث"),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context); // إغلاق الـ Dialog بدون مسح
-                    },
-                    child: Text(
-                      "إلغاء",
-                      style: TextStyle(color: Colors.teal[700]),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      // مسح الفلاتر وإعادة تحميل العقارات الأصلية
-                      _clearFiltersInDialog(
-                        setDialogState,
-                      ); // مسح حقول الـ Dialog
-                      Navigator.pop(context); // إغلاق الـ Dialog
-                      await load(); // إعادة تحميل العقارات كلها
-                    },
-                    child: Text(
-                      "إلغاء الفلاتر",
-                      style: TextStyle(color: Colors.red[700]),
-                    ),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // إغلاق الـ Dialog بدون مسح
+                        },
+                        child: Text(
+                          "إلغاء",
+                          style: TextStyle(color: Colors.teal[700]),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          // مسح الفلاتر وإعادة تحميل العقارات الأصلية
+                          _clearFiltersInDialog(
+                            setDialogState,
+                          ); // مسح حقول الـ Dialog
+                          Navigator.pop(context); // إغلاق الـ Dialog
+                          await load(); // إعادة تحميل العقارات كلها
+                        },
+                        child: Text(
+                          "إلغاء الفلاتر",
+                          style: TextStyle(color: Colors.red[700]),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -451,9 +467,8 @@ class _HomeAdminState extends State<HomeAdmin> {
     return WillPopScope(
       onWillPop: _handleBackButton,
       child: Scaffold(
-        backgroundColor: Colors.teal[50],
+        backgroundColor: Colors.white,
         key: _scaffoldKey,
-        /* drawer: const _CustomDrawer(), */
         drawer: CustomDrawer(
           crud: _crud,
           userType: sharedPref.getString("type").toString(),
@@ -495,20 +510,22 @@ class _HomeAdminState extends State<HomeAdmin> {
                     child: GridView.builder(
                       padding: const EdgeInsets.all(10),
                       controller: _scrollController,
-                      itemCount: filteredProperties.length + (_isLoadingMore ? 1 : 0),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: _calculateAspectRatio(context),
+                      itemCount:
+                          filteredProperties.length + (_isLoadingMore ? 1 : 0),
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 300,
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing: 5,
+                        childAspectRatio:_calculateAspectRatio(context),
                       ),
                       itemBuilder: (context, index) {
-                       if (_isLoadingMore && index == filteredProperties.length) {
-    return const Padding(
-      padding: EdgeInsets.all(10),
-      child: Center(child: CircularProgressIndicator()),
-    );
-  }
+                        if (_isLoadingMore &&
+                            index == filteredProperties.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
                         var property = filteredProperties[index];
                         return InkWell(
                           onTap: () async {
@@ -560,6 +577,7 @@ class _HomeAdminState extends State<HomeAdmin> {
                             isFavorite: favoriteProperties.contains(
                               int.parse(property['id']),
                             ),
+                            propertyId: int.parse(property['id']),
                           ),
                         );
                       },

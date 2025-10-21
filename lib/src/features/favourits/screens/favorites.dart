@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:rento/crud.dart';
-
 import 'package:rento/linkapi.dart';
 import 'package:rento/main.dart';
 import 'package:rento/src/features/details/screens/details.dart';
 import 'package:rento/src/shared/componants/card.dart';
 import 'package:rento/src/shared/componants/custom_drawer.dart';
-
 
 class Favorite extends StatefulWidget {
   const Favorite({super.key});
@@ -45,11 +43,11 @@ class _FavoriteState extends State<Favorite> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     if (screenWidth < 400) {
-      return 0.65;
+      return 0.7;
     } else if (screenWidth < 800) {
-      return 0.75;
-    } else {
       return 0.8;
+    } else {
+      return 0.9;
     }
   }
 
@@ -71,14 +69,11 @@ class _FavoriteState extends State<Favorite> {
 
   void filterSearch(String query) {
     if (allProperties.isEmpty) {
-      print("🔴 No properties available to filter!");
       return;
     }
     setState(() {
       filteredProperties =
           allProperties.where((property) {
-            print("🔍 Checking property: ${property['address']}"); // Debugging
-
             bool matchesSearch =
                 query.isEmpty ||
                 (property['address'] != null &&
@@ -89,8 +84,6 @@ class _FavoriteState extends State<Favorite> {
             return matchesSearch;
           }).toList();
     });
-
-    print("✅ Found ${filteredProperties.length} matching properties.");
   }
 
   @override
@@ -103,8 +96,8 @@ class _FavoriteState extends State<Favorite> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
-      /* drawer: _CustomDrawer(), */
       drawer: CustomDrawer(
         crud: _crud,
         userType: sharedPref.getString("type").toString(),
@@ -113,10 +106,11 @@ class _FavoriteState extends State<Favorite> {
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.teal[50]),
           onPressed: () {
-            _scaffoldKey.currentState!.openDrawer(); // كده تفتحه بسهولة
+            _scaffoldKey.currentState!.openDrawer();
           },
         ),
         title: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
               "مكانك",
@@ -126,20 +120,22 @@ class _FavoriteState extends State<Favorite> {
                 color: Colors.teal[50],
               ),
             ),
-            SizedBox(width: 100),
-            Expanded(
-              child: TextField(
-                controller: searchController,
-                decoration: InputDecoration(
-                  hintText: "ابحث عن عقار",
-                  hintStyle: TextStyle(color: Colors.white70),
-                  prefixIcon: Icon(Icons.search, color: Colors.white70),
-                  border: InputBorder.none,
-                ),
-                style: TextStyle(color: Colors.white),
-                onChanged: filterSearch,
-              ),
-            ),
+            SizedBox(width: 8),
+            Image.asset("images/drawer.png", height: 35, width: 35),
+            // SizedBox(width: 100),
+            // Expanded(
+            //   child: TextField(
+            //     controller: searchController,
+            //     decoration: InputDecoration(
+            //       hintText: "ابحث عن عقار",
+            //       hintStyle: TextStyle(color: Colors.white70),
+            //       prefixIcon: Icon(Icons.search, color: Colors.white70),
+            //       border: InputBorder.none,
+            //     ),
+            //     style: TextStyle(color: Colors.white),
+            //     onChanged: filterSearch,
+            //   ),
+            // ),
           ],
         ),
         backgroundColor: Colors.teal[900],
@@ -266,7 +262,8 @@ class _FavoriteState extends State<Favorite> {
                                   status: '${property['property_state']}',
                                   isFavorite: favoriteProperties.contains(
                                     int.parse(property['id']),
-                                  ), // ✅ تحديد إذا كان العقار في المفضل
+                                  ),
+                                  propertyId: int.parse(property['id']),
                                 ),
                               );
                             },

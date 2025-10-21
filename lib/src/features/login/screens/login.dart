@@ -1,310 +1,148 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
+// src/features/login/screens/login.dart
+
 import 'package:flutter/material.dart';
-import 'package:rento/crud.dart';
-import 'package:rento/linkapi.dart';
-import 'package:rento/main.dart';
-import 'package:rento/src/features/home/screens/home_admin.dart';
-import 'package:rento/src/features/home/screens/home_owner.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rento/src/features/login/provider/login_provider.dart';
 import 'package:rento/src/features/register/screens/register.dart';
-import 'package:rento/src/shared/componants/valid.dart'; // تأكد إن ده فيه الـ sharedPref
+import 'package:rento/src/shared/componants/custom_text_form_field.dart';
+import 'package:rento/src/shared/componants/valid.dart';
+import 'package:rento/src/shared/theme/app_colors.dart';
 
-
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loginController = ref.watch(loginProvider);
+    final loginNotifier = ref.read(loginProvider.notifier);
 
-class _LoginScreenState extends State<LoginScreen> {
-  final Crud _crud = Crud(); // تم تصحيح الاسم من _curd إلى _crud
-  GlobalKey<FormState> formstate = GlobalKey(); // إضافة GlobalKey للفورم
-
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  bool isloading = false;
-  String? _errorMessage; // لإضافة رسائل الخطأ
-  bool _obscurePassword = true;
-  // هذا السطر لم يعد ضروريا هنا ويمكن حذفه
-  // late final String? Function(String?) val;
-
-  login() async {
-    // التحقق من صحة المدخلات قبل إرسال الطلب
-    if (formstate.currentState!.validate()) {
-      _errorMessage = null; // إزالة أي رسائل خطأ سابقة
-      isloading = true;
-      setState(() {});
-
-      try {
-        var response = await _crud.postRequest(linkLogin, {
-          "email": emailController.text,
-          "password": passwordController.text,
-        });
-
-        isloading = false;
-        setState(() {});
-
-        if (response != null && response['status'] == "success") {
-          // حفظ بيانات المستخدم في Shared Preferences
-          sharedPref.setString("id", response['data']['id'].toString());
-          sharedPref.setString("username", response['data']['username']);
-          sharedPref.setString("email", response['data']['email']);
-          sharedPref.setString("type", response['data']['type'].toString());
-          sharedPref.setString("balance", response['data']['balance']);
-          String? fcmToken = await FirebaseMessaging.instance.getToken();
-          if (fcmToken != null && sharedPref.getString("id") != null) {
-            await _crud.postRequest(linkUpdateUserFcmToken, {
-              "user_id": sharedPref.getString("id")!,
-              "fcm_token": fcmToken,
-            });
-            print("FCM Token sent to backend: $fcmToken");
-          }
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response['message'] ?? "تم تسجيل الدخول بنجاح!"),
-            ),
-          );
-
-          // التوجيه بناءً على نوع المستخدم
-          if (sharedPref.getString("type") == "admin") {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HomeAdmin(),
-              ), // استخدام const مع الـ Widget
-            );
-          } else if (sharedPref.getString("type") == "owner" ||
-              sharedPref.getString("type") == "renter") {
-            // ممكن تضيف هنا تحقق لو فيه أنواع تانية غير owner عشان يروح على home_owner
-            // أو تعمل HomeRenter لو ليها شاشة مختلفة
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HomeOwner(),
-              ), // استخدام const مع الـ Widget
-            );
-          } else {
-            // لو نوع المستخدم غير معروف أو لم يتم إرجاعه بشكل صحيح
-            setState(() {
-              _errorMessage =
-                  "نوع المستخدم غير معروف. يرجى الاتصال بالدعم الفني.";
-            });
-          }
-        } else {
-          // لو الـ status مش "success" يبقى فيه خطأ
-          String message =
-              "فشل تسجيل الدخول. يرجى التأكد من البريد وكلمة المرور.";
-          if (response != null && response['message'] != null) {
-            message =
-                response['message']; // استخدام الرسالة اللي جاية من الباك إند
-          }
-          setState(() {
-            _errorMessage = message;
-          });
-          print("Login failed: $message");
-          print(
-            "Response Body: $response",
-          ); // طباعة الـ response بالكامل للمراجعة
-        }
-      } catch (e) {
-        isloading = false;
-        setState(() {});
-        setState(() {
-          _errorMessage = "حدث خطأ غير متوقع. يرجى المحاولة لاحقاً.";
-        });
-        print("Exception occurred: $e");
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.teal[50],
-      body: Center(
-        child:
-            isloading == true
-                ? const Center(
-                  child: CircularProgressIndicator(),
-                ) // استخدام const هنا
-                : SafeArea(
+      body:
+          loginController.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Center(
+                child: SafeArea(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(25.0),
                     child: Form(
-                      // إضافة Form Widget
-                      key: formstate, // ربط الـ GlobalKey
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "مرحبًا بعودتك",
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.teal[900],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "قم بتسجيل الدخول لمواصلة رحلتك الصيفية",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.teal[900],
-                            ),
-                          ),
-                          const SizedBox(height: 40),
-                          Directionality(
-                            textDirection: TextDirection.rtl,
-                            child: TextFormField(
-                              controller: emailController,
-                              validator: (val) {
-                                // تحسين الـ validation للبريد الإلكتروني
-                                if (val == null || val.isEmpty) {
-                                  return "البريد الإلكتروني مطلوب";
-                                }
-                                if (!val.contains('@') || !val.contains('.')) {
-                                  return "صيغة بريد إلكتروني غير صحيحة";
-                                }
-                                return validInput(
-                                  val,
-                                  3,
-                                  50,
-                                ); // استخدم valid.dart
-                              },
-                              decoration: InputDecoration(
-                                labelText: "بريد إلكتروني",
-                                labelStyle: TextStyle(color: Colors.teal[900]),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: BorderSide.none,
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.email,
-                                  color: Colors.teal[900],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Directionality(
-                            textDirection: TextDirection.rtl,
-                            child: TextFormField(
-                              controller: passwordController,
-                              obscureText: _obscurePassword,
-                  
-                              validator: (val) {
-                                return validInput(
-                                  val!,
-                                  6,
-                                  30,
-                                ); // يفضل 6 أحرف على الأقل للباسورد
-                              },
-                              decoration: InputDecoration(
-                                labelText: "كلمة المرور",
-                                labelStyle: TextStyle(color: Colors.teal[900]),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: BorderSide.none,
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.lock,
-                                  color: Colors.teal[900],
-                                ),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
-                                  ),
-                                  iconSize: 22,
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscurePassword = !_obscurePassword;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          // عرض رسالة الخطأ هنا لو فيه
-                          if (_errorMessage != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 15.0),
-                              child: Text(
-                                _errorMessage!,
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 14,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.teal[800],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              minimumSize: const Size(2000, 55),
-                            ),
-                            onPressed: () async {
-                              // استدعاء دالة login بعد التحقق من الفورم
-                              await login();
-                            },
-                            child: const Text(
-                              // استخدام const
-                              "تسجيل الدخول",
+                      key: loginController.formKey,
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "مرحبًا بعودتك",
                               style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
+                                fontSize: 32,
                                 fontWeight: FontWeight.bold,
+                                color: AppColors.teal900,
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) =>
-                                          RegisterScreen(), // استخدام const
-                                ),
-                              );
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "سجل الان ",
-                                  style: TextStyle(
-                                    color: Colors.orange[900],
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Text(
-                                  "ليس لديك حساب؟",
-                                  style: TextStyle(
-                                    color: Colors.teal[900],
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
+                            const SizedBox(height: 8),
+                            Text(
+                              "قم بتسجيل الدخول لمواصلة رحلتك الصيفية",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: AppColors.teal900,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 40),
+                            CustomTextFormField(
+                              controller: loginController.phoneController,
+                              label: "رقم الهاتف",
+                              prefixIcon: Icons.phone,
+                              keyboardType: TextInputType.phone,
+                              validator: (val) {
+                                if (val == null || val.isEmpty) {
+                                  return "رقم الهاتف مطلوب ";
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                            CustomTextFormField(
+                              controller: loginController.passwordController,
+                              label: "كلمة المرور",
+                              prefixIcon: Icons.lock,
+                              isPassword: true,
+                              validator: (val) => validInput(val!, 6, 30),
+                            ),
+                            const SizedBox(height: 30),
+                            if (loginController.errorMessage != null)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 15.0),
+                                child: Text(
+                                  loginController.errorMessage!,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 14,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.teal[800],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 17,
+                                  ),
+                                ),
+                                onPressed: () => loginNotifier.login(context),
+                                child: const Text(
+                                  "تسجيل الدخول",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => const RegisterScreen(),
+                                  ),
+                                );
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "ليس لديك حساب؟",
+                                    style: TextStyle(
+                                      color: AppColors.teal900,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    " سجل الان ",
+                                    style: TextStyle(
+                                      color: AppColors.orange,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-      ),
+              ),
     );
   }
 }
