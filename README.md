@@ -41,16 +41,6 @@ Mkanak offers a tailored experience for three types of users: **Renters**, **Pro
 
 ---
 
-## 📸 Screenshots
-
-<p align="center">
-  <img src="images/avail.png" width="200" />
-  <img src="images/book.png" width="200" />
-  <img src="images/booked.PNG" width="200" />
-</p>
-
----
-
 ## 🛠️ Technologies & Tools Used
 
 * **Framework:** Flutter
