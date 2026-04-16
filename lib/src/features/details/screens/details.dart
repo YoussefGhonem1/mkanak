@@ -5,6 +5,7 @@ import 'package:rento/main.dart';
 import 'package:rento/src/features/favourits/screens/favorites.dart';
 import 'package:rento/src/shared/componants/get_location.dart';
 import 'package:rento/src/shared/theme/theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // ignore: must_be_immutable
 class RealEstateDetailsPage extends StatefulWidget {
@@ -1193,40 +1194,34 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    sharedPref.getString("type").toString() == "admin"
-                        ? Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.phone,
-                                color: Colors.teal[900],
-                                size: 30,
-                              ),
-                              SizedBox(width: 2),
-                              Text(
-                                'الهاتف : ',
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.teal[900],
-                                ),
-                              ),
-                              SizedBox(width: 2),
-                              Text(
-                                widget.phone,
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.teal[900],
-                                ),
-                              ),
-                            ],
+                    Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: Row(
+                        children: [
+                          Icon(Icons.phone, color: Colors.teal[900], size: 30),
+                          SizedBox(width: 2),
+                          Text(
+                            'الهاتف : ',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal[900],
+                            ),
                           ),
-                        )
-                        : SizedBox.shrink(),
+                          SizedBox(width: 2),
+                          Text(
+                            widget.phone,
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal[900],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 10),
 
                     Directionality(
@@ -1424,7 +1419,7 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
 
                     const SizedBox(height: 10),
 
-                    Directionality(
+                    /*      Directionality(
                       textDirection: TextDirection.rtl,
                       child: Row(
                         children: [
@@ -1461,7 +1456,7 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 10), */
 
                     // Description
                     Directionality(
@@ -1603,21 +1598,65 @@ class _RealEstateDetailsPageState extends State<RealEstateDetailsPage> {
                               ),
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
-                                horizontal: 130,
+                                horizontal:
+                                    80, // قللت المسافة الأفقية قليلاً لتناسب مختلف الشاشات
                               ),
                             ),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder:
-                                    (context) => _showPeopleAndTypeDialog(),
-                              );
+                            onPressed: () async {
+                              // رقم صاحب العقار القادم من الـ widget
+                              final phoneNumber = widget.phone;
+                              final url = 'tel:$phoneNumber';
+
+                              if (await canLaunchUrl(Uri.parse(url))) {
+                                await launchUrl(Uri.parse(url));
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'لا يمكن الاتصال بالرقم المحدد حالياً.',
+                                    ),
+                                  ),
+                                );
+                              }
                             },
-                            child: const Text(
-                              "احجز الان",
-                              style: TextStyle(fontSize: 20),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.phone,
+                                ), // إضافة أيقونة الهاتف بجانب النص
+                                SizedBox(width: 10),
+                                Text(
+                                  "اتصل بصاحب العقار",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ],
                             ),
                           ),
+                          // ElevatedButton(
+                          //   style: ElevatedButton.styleFrom(
+                          //     foregroundColor: Colors.teal[50],
+                          //     backgroundColor: Colors.teal[900],
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(20),
+                          //     ),
+                          //     padding: const EdgeInsets.symmetric(
+                          //       vertical: 12,
+                          //       horizontal: 130,
+                          //     ),
+                          //   ),
+                          //   onPressed: () {
+                          //     showDialog(
+                          //       context: context,
+                          //       builder:
+                          //           (context) => _showPeopleAndTypeDialog(),
+                          //     );
+                          //   },
+                          //   child: const Text(
+                          //     "احجز الان",
+                          //     style: TextStyle(fontSize: 20),
+                          //   ),
+                          // ),
                           if (isOwnerOrAdmin(
                             sharedPref.getString("id").toString(),
                             widget.owner_id,

@@ -181,7 +181,7 @@ class RealEstateCard extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 5),
+                 /*    const SizedBox(height: 5),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -243,7 +243,7 @@ class RealEstateCard extends ConsumerWidget {
                         //   ),
                         // ),
                       ],
-                    ),
+                    ), */
                   ],
                 ),
               ),

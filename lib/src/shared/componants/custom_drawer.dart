@@ -126,7 +126,7 @@ class CustomDrawer extends StatelessWidget {
                       : SizedBox.shrink(),
 
                   // صفحة الطلبات
-                  _buildDrawerItem(
+                /*   _buildDrawerItem(
                     context,
                     title:
                         userType == "admin"
@@ -161,7 +161,7 @@ class CustomDrawer extends StatelessWidget {
                       }
                     },
                   ),
-                  const Divider(color: Colors.white54, height: 10),
+                  const Divider(color: Colors.white54, height: 10), */
 
                   // صفحة المفضلة
                   _buildDrawerItem(

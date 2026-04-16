@@ -83,11 +83,11 @@ class _HomeOwnerState extends State<HomeOwner> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     if (screenWidth < 400) {
-      return 0.7;
-    } else if (screenWidth < 800) {
       return 0.8;
-    } else {
+    } else if (screenWidth < 800) {
       return 0.9;
+    } else {
+      return 1;
     }
   }
 
